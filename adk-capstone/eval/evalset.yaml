@@ -1,0 +1,7 @@
+name: order_copilot_smoke
+app_name: order_copilot
+cases_path: order_copilot/eval/cases.jsonl
+assertions:
+  - type: contains_any
+    on: response
+    key: expected_contains

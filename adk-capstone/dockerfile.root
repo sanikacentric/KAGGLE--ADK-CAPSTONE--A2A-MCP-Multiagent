@@ -1,0 +1,27 @@
+# ---------- builder ----------
+FROM python:3.11-slim AS builder
+WORKDIR /app
+ENV PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
+COPY requirements.txt .
+RUN pip install --prefix=/install -r requirements.txt
+
+# ---------- runtime ----------
+FROM python:3.11-slim
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+# Create non-root user
+RUN useradd -m appuser
+COPY --from=builder /install /usr/local
+COPY order_copilot/ order_copilot/
+COPY order_copilot/root_agent.yaml order_copilot/root_agent.yaml
+# Healthcheck file (optional): returns 200 OK
+RUN printf 'from fastapi import FastAPI\napp=FastAPI()\n@app.get(\"/healthz\")\ndef h():return{\"ok\":True}\n' > health_app.py
+
+USER appuser
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s CMD python -c "import requests,os;requests.get('http://127.0.0.1:8080/healthz',timeout=2)" || exit 1
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8080", "order_copilot.servers.root_service:app"]

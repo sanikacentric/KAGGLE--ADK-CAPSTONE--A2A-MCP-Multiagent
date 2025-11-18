@@ -1,0 +1,4 @@
+# used by `adk web order_copilot`
+agent_module: order_copilot.agent.support_orchestrator
+agent_attr: root_agent
+app_name: order_copilot

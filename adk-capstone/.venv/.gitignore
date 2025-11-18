@@ -1,0 +1,66 @@
+# --- Python bytecode / caches ---
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+
+# --- Virtual envs ---
+.venv/
+venv/
+env/
+
+# --- OS / Editor junk ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# --- Packaging / build ---
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- Test / tooling caches ---
+.pytest_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+
+# --- Notebooks ---
+.ipynb_checkpoints/
+
+# --- Logs & runtime artifacts ---
+*.log
+logs/
+*.pid
+
+# --- Local data / scratch ---
+*.sqlite
+*.db
+tmp/
+.temp/
+scratch/
+
+# --- Environment & secrets ---
+.env
+*.env
+.env.*            # e.g. .env.local, .env.dev
+*.secret
+*.secrets
+secrets.*
+credentials.*
+*.key
+*.pem
+*.p12
+*.crt
+
+# --- Docker ---
+*.tar
+docker-compose.override.yml
+
+# --- ADK / app-specific (if generated locally) ---
+.adk/
+.order_copilot_state/

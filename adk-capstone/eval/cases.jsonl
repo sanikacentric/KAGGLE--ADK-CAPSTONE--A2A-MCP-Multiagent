@@ -1,0 +1,4 @@
+{"id":"p1","input":"Is the iPhone 15 Pro in stock?","expected_contains":["$999","Low Stock","iPhone 15 Pro"]}
+{"id":"s1","input":"Ship to 07001, how long?","expected_contains":["Estimated delivery: 2"]}
+{"id":"c1","input":"Is Belgium VAT BE123456 valid?","expected_contains":["COMPLIANT","VAT"]}
+{"id":"lr1","input":"scan order ORD-42","expected_contains":["SCAN_STARTED token="]}
