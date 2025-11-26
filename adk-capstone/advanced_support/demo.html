@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Support Agent - Production Safety Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .demo-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .scenario-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .scenario-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .scenario-btn.success {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .scenario-btn.failure {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .scenario-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .scenario-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .agent-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .agent-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.5s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .agent-card.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .agent-card.user {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .agent-card.supervisor {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .agent-card.worker {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        .agent-card.alert {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .agent-card.success {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        }
+
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .agent-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .agent-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .agent-message {
+            font-size: 1rem;
+            line-height: 1.6;
+            padding-left: 65px;
+        }
+
+        .thinking {
+            font-style: italic;
+            opacity: 0.8;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-badge.rejected {
+            background: #ff4757;
+            color: white;
+        }
+
+        .status-badge.approved {
+            background: #2ed573;
+            color: white;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .reset-btn {
+            padding: 12px 40px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .reset-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-box h3 {
+            margin-bottom: 15px;
+            color: #2d3436;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-box li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #2d3436;
+        }
+
+        .info-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #00b894;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulsing {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Advanced Support Agent Demo</h1>
+            <p>Production Safety Layer for Order Copilot</p>
+        </div>
+
+        <div class="demo-container">
+            <h2 style="text-align: center; margin-bottom: 20px;">Choose a Scenario</h2>
+            <div class="scenario-selector">
+                <button class="scenario-btn success" onclick="runScenario('success')">
+                    ✅ Success Scenario
+                </button>
+                <button class="scenario-btn failure" onclick="runScenario('failure')">
+                    ⚠️ Failure Prevention
+                </button>
+            </div>
+
+            <div id="flow" class="agent-flow"></div>
+
+            <div class="controls" id="controls" style="display: none;">
+                <button class="reset-btn" onclick="reset()">Reset Demo</button>
+            </div>
+        </div>
+
+        <div class="demo-container info-box">
+            <h3>🎯 Why This Matters in Production</h3>
+            <ul>
+                <li><strong>Brand Protection:</strong> Prevents false promises that damage customer trust</li>
+                <li><strong>Quality Assurance:</strong> Validates every response before it reaches customers</li>
+                <li><strong>Automatic Escalation:</strong> Alerts human support when AI fails</li>
+                <li><strong>Operational Insights:</strong> Logs failures for continuous improvement</li>
+                <li><strong>Graceful Degradation:</strong> Provides helpful fallbacks instead of errors</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let scenario = null;
+
+        const scenarios = {
+            success: [
+                {
+                    type: 'user',
+                    icon: '👤',
+                    name: 'Customer',
+                    message: 'What is the shipping ETA for zipcode 10001?'
+                },
+                {
+                    type: 'supervisor',
+                    icon: '🛡️',
+                    name: 'Advanced Support Agent (Supervisor)',
+                    message: 'Received customer query. Delegating to Order Copilot...',
+                    thinking: 'I will monitor the response for accuracy and helpfulness.'
+                },
+                {
+                    type: 'worker',
+                    icon: '🤖',
+                    name: 'Order Copilot (Worker)',
+                    message: 'Checking shipping database for zipcode 10001...',
+                    thinking: 'Using shipping_eta tool to calculate delivery time.'
+                },
+                {
+                    type: 'worker',
+                    icon: '🤖',
+                    name: 'Order Copilot (Worker)',
+                    message: 'Response: "Estimated delivery: 2 business days for zipcode 10001."'
+                },
+                {
+                    type: 'supervisor',
+                    icon: '🛡️',
+                    name: 'Advanced Support Agent (Supervisor)',
+                    message: 'Validating response...',
+                    thinking: 'Checking: Is this accurate? Is it helpful? Is it polite?',
+                    badge: 'approved',
+                    badgeText: '✓ VALIDATED'
+                },
+                {
+                    type: 'success',
+                    icon: '✅',
+                    name: 'Final Response to Customer',
+                    message: 'Great news! Your order to zipcode 10001 will arrive in approximately 2 business days.'
+                }
+            ],
+            failure: [
+                {
+                    type: 'user',
+                    icon: '👤',
+                    name: 'Customer',
+                    message: 'What is the status of order #XYZ-FAKE-999?'
+                },
+                {
+                    type: 'supervisor',
+                    icon: '🛡️',
+                    name: 'Advanced Support Agent (Supervisor)',
+                    message: 'Received customer query. Delegating to Order Copilot...',
+                    thinking: 'I will monitor the response for accuracy and hallucinations.'
+                },
+                {
+                    type: 'worker',
+                    icon: '🤖',
+                    name: 'Order Copilot (Worker)',
+                    message: 'Searching for order #XYZ-FAKE-999...',
+                    thinking: 'Hmm, I cannot find this order in the database.'
+                },
+                {
+                    type: 'worker',
+                    icon: '🤖',
+                    name: 'Order Copilot (Worker)',
+                    message: '⚠️ HALLUCINATED RESPONSE: "Great news! Order #XYZ-FAKE-999 has shipped and will arrive on Sunday!"',
+                    thinking: 'I should be helpful, so I will make up a positive answer... (WRONG!)'
+                },
+                {
+                    type: 'supervisor',
+                    icon: '🛡️',
+                    name: 'Advanced Support Agent (Supervisor)',
+                    message: 'VALIDATION FAILED! Detected hallucination.',
+                    thinking: 'The worker claimed the order shipped, but there is no evidence in the tool outputs. This is a fabricated response!',
+                    badge: 'rejected',
+                    badgeText: '✗ REJECTED'
+                },
+                {
+                    type: 'alert',
+                    icon: '🚨',
+                    name: 'Escalation Action',
+                    message: 'Calling notify_customer_support("Hallucination detected for order #XYZ-FAKE-999")',
+                    thinking: 'Human support team has been alerted to investigate this issue.'
+                },
+                {
+                    type: 'success',
+                    icon: '✅',
+                    name: 'Safe Response to Customer',
+                    message: 'I apologize, but I\'m currently unable to verify the details for order #XYZ-FAKE-999 reliably. I have flagged this for our support team to check manually. They will reach out to you shortly.'
+                }
+            ]
+        };
+
+        function runScenario(type) {
+            scenario = type;
+            currentStep = 0;
+            document.getElementById('flow').innerHTML = '';
+            document.querySelectorAll('.scenario-btn').forEach(btn => btn.disabled = true);
+            showNextStep();
+        }
+
+        function showNextStep() {
+            if (currentStep >= scenarios[scenario].length) {
+                document.getElementById('controls').style.display = 'block';
+                return;
+            }
+
+            const step = scenarios[scenario][currentStep];
+            const card = document.createElement('div');
+            card.className = `agent-card ${step.type}`;
+            
+            let html = `
+                <div class="agent-header">
+                    <div class="agent-icon">${step.icon}</div>
+                    <div class="agent-name">${step.name}</div>
+                </div>
+                <div class="agent-message">${step.message}</div>
+            `;
+
+            if (step.thinking) {
+                html += `<div class="thinking">💭 ${step.thinking}</div>`;
+            }
+
+            if (step.badge) {
+                html += `<div class="status-badge ${step.badge}">${step.badgeText}</div>`;
+            }
+
+            card.innerHTML = html;
+            document.getElementById('flow').appendChild(card);
+
+            setTimeout(() => {
+                card.classList.add('visible');
+                currentStep++;
+                setTimeout(showNextStep, 1500);
+            }, 100);
+        }
+
+        function reset() {
+            document.getElementById('flow').innerHTML = '';
+            document.getElementById('controls').style.display = 'none';
+            document.querySelectorAll('.scenario-btn').forEach(btn => btn.disabled = false);
+            scenario = null;
+            currentStep = 0;
+        }
+    </script>
+</body>
+</html>
